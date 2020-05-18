@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>WebGL / GLSL - Texture Mapping with Multitexturing</title>
+  <meta charset="utf-8" />
+  <link href="styles/sphere.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+  <canvas id="gl-canvas" width="720" height="720">
+    Oops ... your browser doesn't support the HTML5 canvas element
+  </canvas>
+  <aside>
+    <h1>Controls</h1>
+    <form onsubmit="return false;">
+      <p>
+        <button id="btnCamDistUp">Increase distance</button>
+        <button id="btnCamDistDn">Decrease distance</button>
+      </p>
+      <p>
+        <button id="btnThetaUp">Increase theta</button>
+        <button id="btnThetaDn">Decrease theta</button>
+      </p>
+      <p>
+        <button id="btnPhiUp">Increase phi</button>
+        <button id="btnPhiDn">Decrease phi</button>
+      </p>
+      <label>Subdivisions
+        <input id="sliderSubdivide" type="range" min="0" max="6" value="3" />
+      </label>
+    </form>
+    <h1>About this shader</h1>
+    <p>Multitexturing involves mapping several texture images onto the same primitives. In this example, three textures are used - a diffuse color map, an ambient color map (for the "night side"), and a specular map (to prevent the land masses from looking shiny).</p>
+  </aside>
+
+  <script src="js/gl-matrix.js"></script>
+  <script type="text/javascript" src="js/sphere.js"></script>
+</body></html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Simple Uniform Shading - WebGL / GLSL</title>
+  <meta charset="utf-8" />
+  <script id="vertex-shader" type="x-shader/x-vertex">#version 300 es
+    precision mediump float;
+
+    in vec3 in_Position;
+
+    uniform mat4 projMatrix;
+    uniform mat4 viewMatrix;
+
+    void main() {
+      vec4 pos = viewMatrix * vec4(in_Position, 1.0);
+
+      gl_Position = projMatrix * pos;
+    }
+  </script>
+  <script id="fragment-shader" type="x-shader/x-fragment">#version 300 es
+    precision mediump float;
+
+    out vec4 fragmentColor;
+
+    uniform vec3 kd;
+
+    void main() {
+      fragmentColor = vec4( kd, 1.0 );
+    }
+  </script>
+  <link href="styles/sphere.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+  <canvas id="gl-canvas" width="720" height="720">
+    Oops ... your browser doesn't support the HTML5 canvas element
+  </canvas>
+  <aside>
+    <h1>Controls</h1>
+    <form onsubmit="return false;">
+      <p>
+        <button id="btnCamDistUp">Increase distance</button>
+        <button id="btnCamDistDn">Decrease distance</button>
+      </p>
+      <p>
+        <button id="btnThetaUp">Increase theta</button>
+        <button id="btnThetaDn">Decrease theta</button>
+      </p>
+      <p>
+        <button id="btnPhiUp">Increase phi</button>
+        <button id="btnPhiDn">Decrease phi</button>
+      </p>
+      <p>
+        <button id="btnMoreDivs">More subdivisions</button>
+        <button id="btnLessDivs">Less subdivisions</button>
+      </p>
+    </form>
+    <h1>About this shader</h1>
+    <p>This shader does nothing but assign the same uniform color to each fragment.</p>
+  </aside>
+
+  <script type="text/javascript" src="js/Common/initShaders.js"></script>
+  <script type="text/javascript" src="js/Common/MV.js"></script>
+  <script type="text/javascript" src="js/sphere.js"></script>
+</body></html>

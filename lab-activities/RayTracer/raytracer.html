@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Computer Graphics Lab - Alpha Compositing</title>
+  <meta charset="utf-8" />
+  <style>
+    html {
+      text-align: center;
+      font-family: sans-serif;
+      font-size: 200%;
+    }
+
+    output {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-right: -50%;
+      transform: translate(-50%, -50%);
+    }
+
+    canvas,
+    input {
+      display: block;
+      margin: auto;
+    }
+
+    canvas {
+      outline: 1px solid gray;
+    }
+
+    input {
+      width: 720px;
+      margin-top: 1em;
+    }
+
+    output {
+      display: block;
+    }
+
+    #spinner {
+      display: inline;
+    }
+
+    #scene {
+      display: none;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
+    }
+  </style>
+  <script type="module">
+    import {Group,Sphere} from "./surface.js";
+    import {Scene} from "./raytracer.js";
+
+    /* Renders a ray-traced scene into a hidden buffer (the canvas) and then displays as an image. */
+    window.onload = () => {
+      document.getElementById("scene").style.display = "none";
+      document.getElementById("spinner").style.display = "block";
+
+      const startTime = new Date();
+      const surfaces = new Group();
+      surfaces.addSurface(new Sphere([0, 0, -2.5], 0.75, [0.6, 0.5, 1.0], 10));
+      surfaces.addSurface(new Sphere([-0.3, -0.2, -2], 0.3, [1.0, 0.5, 0.6], 10));
+      surfaces.addSurface(new Sphere([1.1, 0.3, -2.5], 0.2, [0.5, 1.0, 0.6], 10));
+
+      const scene = new Scene(surfaces);
+      //const scene = new Scene(new Sphere([0, 0, -2.5], 0.75, [0.6, 0.5, 1.0]));
+      scene.trace();
+
+      // save canvas image as data url (png format by default)
+      // set canvasImg image src to dataURL
+      // so it can be saved as an image
+      document.getElementById("scene").src = scene.image.toDataURL();
+      document.getElementById("scene").style.display = "inline";
+      document.getElementById("spinner").style.display = "none";
+      document.querySelector("output > p").textContent
+        = (new Date() - startTime) + "ms elapsed — "
+        + (scene.image.width * scene.image.height) + " pixels";
+    }
+  </script>
+</head>
+
+<body>
+
+  <output>
+    <img id="spinner" src="loading-spinner.gif" alt="loading..." />
+    <img id="scene" src="" alt="render output" width="1280" height="720" />
+    <p></p>
+  </output>
+
+  <canvas id="viewport" width="640" height="360" style="display: none;">
+    Your browser does not support HTML5! Upgrade now, you neanderthal!
+  </canvas>
+
+</body></html>

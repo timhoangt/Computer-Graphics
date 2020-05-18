@@ -1,0 +1,42 @@
+html {
+  background-color: #334;
+  color: #ccc;
+}
+
+canvas {
+  display: inline-block;
+  border: 1px solid #668;
+  vertical-align: middle;
+}
+
+aside {
+  display: inline-block;
+  width: 360px;
+  padding: 1em 2em;
+  vertical-align: middle;
+  text-align: center;
+}
+
+form {
+  margin-bottom: 2em;
+}
+
+h1 {
+  font-family: sans-serif;
+}
+
+
+button {
+  width: 10em;
+  border: 1px solid #ccc;
+  background-color: #668;
+  color: #ccc;
+  padding: 0.5em;
+  box-shadow: 2px 2px #001;
+  font-size: 100%;
+}
+
+button:active {
+  background-color: #66a;
+  box-shadow: 0 0 #001;
+}

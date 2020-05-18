@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Phong Smooth Shading - WebGL / GLSL</title>
+  <meta charset="utf-8" />
+  <script id="vertex-shader" type="x-shader/x-vertex">#version 300 es
+    precision mediump float;
+
+    in vec3 in_Position;
+    in vec3 in_Normal;
+
+    // declare the required output vectors to send to fragment shader
+    out vec4 normal;
+    out vec3 halfway;
+    out vec3 lightdir;
+
+    struct LightData {
+      vec3 position;
+      vec3 intensity;
+    };
+    uniform LightData light;
+
+    uniform mat4 projMatrix;
+    uniform mat4 viewMatrix;
+
+    void main() {
+      // transform positions and normal into eye coordinates
+      vec4 pos = viewMatrix * vec4(in_Position, 1.0);
+      vec4 lightPos = viewMatrix * vec4(light.position, 1.0); 
+      normal = viewMatrix * vec4(in_Normal, 0.0);
+
+      /* TODO #4 compute view direction, light direction, and halfway vector. */;
+      vec3 v = normalize( -pos.xyz );
+      lightdir = normalize( lightPos.xyz - pos.xyz );
+      halfway = normalize( v + lightdir );
+
+      gl_Position = projMatrix * pos;
+    }
+  </script>
+  <script id="fragment-shader" type="x-shader/x-fragment">#version 300 es
+    precision mediump float;
+
+    // TODO #5 declare the required input vectors coming from the vertex shader
+    in vec4 normal;
+    in vec3 halfway;
+    in vec3 lightdir;
+
+    out vec4 fragmentColor;
+
+    // declare a structure to hold the light data
+    struct LightData {
+      vec3 position;
+      vec3 intensity;
+    };
+    uniform LightData light;
+    uniform vec3 Ia;
+
+    // TODO #1 declare uniform variables for surface properties
+    uniform vec3 ka, kd, ks;
+    uniform float phongExp;
+
+    void main() {
+      /* TODO #6 use the vectors from vertex shader, but...
+         normalize again now we're in screen space */
+      vec3 n = normalize(normal.xyz);
+      vec3 l = normalize(lightdir);
+      vec3 h = normalize(halfway);
+
+      // compute the Blinn-Phong reflection model
+      vec3 ambientTerm = Ia * ka;/* #2 TODO compute the ambient product */;
+      vec3 diffuseTerm = kd * light.intensity * max( 0.0, dot(n, l) );/* #7 TODO compute the diffuse product */;
+      vec3 specularTerm = ks * light.intensity * pow( max( 0.0, dot(n, h) ), phongExp );/* #9 TODO compute the specular product */;
+      vec3 intensity = ambientTerm + diffuseTerm + specularTerm;/* TODO #3/8/10 sum for total intensity (start with ambient only, then add more) */;
+
+      fragmentColor = vec4( intensity, 1.0 );
+    }
+  </script>
+  <link href="styles/sphere.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+  <canvas id="gl-canvas" width="720" height="720">
+    Oops ... your browser doesn't support the HTML5 canvas element
+  </canvas>
+  <aside>
+    <h1>Controls</h1>
+    <form onsubmit="return false;">
+      <p>
+        <button id="btnCamDistUp">Increase distance</button>
+        <button id="btnCamDistDn">Decrease distance</button>
+      </p>
+      <p>
+        <button id="btnThetaUp">Increase theta</button>
+        <button id="btnThetaDn">Decrease theta</button>
+      </p>
+      <p>
+        <button id="btnPhiUp">Increase phi</button>
+        <button id="btnPhiDn">Decrease phi</button>
+      </p>
+      <p>
+        <button id="btnMoreDivs">More subdivisions</button>
+        <button id="btnLessDivs">Less subdivisions</button>
+      </p>
+    </form>
+    <h1>About this shader</h1>
+    <p>Phong shading computes the reflection model at each fragment using barycentric-interpolated normals in screen space.</p>
+  </aside>
+
+  <script type="text/javascript" src="js/Common/initShaders.js"></script>
+  <script type="text/javascript" src="js/Common/MV.js"></script>
+  <script type="text/javascript" src="js/sphere.js"></script>
+</body></html>

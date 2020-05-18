@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Normal Vector Shader - WebGL / GLSL</title>
+  <meta charset="utf-8" />
+  <script id="vertex-shader" type="x-shader/x-vertex">#version 300 es
+    precision mediump float;
+
+    in vec3 in_Position;
+    in vec3 in_Normal;
+
+    out vec4 normal;
+
+    uniform mat4 projMatrix;
+    uniform mat4 viewMatrix;
+
+    void main() {
+      vec4 pos = viewMatrix * vec4(in_Position, 1.0);
+      normal = viewMatrix * vec4(in_Normal, 1.0); /* TODO #1 transform input normal into eye coordinates */;
+
+      gl_Position = projMatrix * pos;
+    }
+  </script>
+  <script id="fragment-shader" type="x-shader/x-fragment">#version 300 es
+    precision mediump float;
+
+    /* TODO 2 declare an input variable to receive normal from vertex shader */
+    in vec4 normal;
+
+    out vec4 fragmentColor;
+
+    void main() {
+      vec3 n = vec3(normalize(normal)); /* TODO #3 re-normalize the screen-space normal vector */
+      fragmentColor = vec4( n, 1.0 );
+    }
+  </script>
+  <link href="styles/sphere.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+  <canvas id="gl-canvas" width="720" height="720">
+    Oops ... your browser doesn't support the HTML5 canvas element
+  </canvas>
+  <aside>
+    <h1>Controls</h1>
+    <form onsubmit="return false;">
+      <p>
+        <button id="btnCamDistUp">Increase distance</button>
+        <button id="btnCamDistDn">Decrease distance</button>
+      </p>
+      <p>
+        <button id="btnThetaUp">Increase theta</button>
+        <button id="btnThetaDn">Decrease theta</button>
+      </p>
+      <p>
+        <button id="btnPhiUp">Increase phi</button>
+        <button id="btnPhiDn">Decrease phi</button>
+      </p>
+      <p>
+        <button id="btnMoreDivs">More subdivisions</button>
+        <button id="btnLessDivs">Less subdivisions</button>
+      </p>
+    </form>
+    <h1>About this shader</h1>
+    <p>Coloring points on an object using the surface normal vectors can be useful for debugging object meshes and normal/bump maps.</p>
+  </aside>
+
+  <script type="text/javascript" src="js/common/initShaders.js"></script>
+  <script type="text/javascript" src="js/common/MV.js"></script>
+  <script type="text/javascript" src="js/sphere.js"></script>
+</body></html>

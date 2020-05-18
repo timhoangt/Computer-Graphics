@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>three.js webgl - loaders - OBJ MTL loader</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <style>
+    body {
+      font-family: Monospace;
+      background-color: #8ad;
+      color: #fff;
+      margin: 0px;
+      overflow: hidden;
+    }
+
+    #info {
+      color: #fff;
+      position: absolute;
+      top: 10px;
+      width: 100%;
+      text-align: center;
+      z-index: 100;
+      display: block;
+    }
+
+    #info a,
+    .button {
+      color: #f00;
+      font-weight: bold;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div id="info">
+    <a href="http://threejs.org" target="_blank">three.js</a> - Bicycle Test
+  </div>
+
+  <script src="js/vendor/build/dat.gui.min.js"></script>
+
+  <script type="module">
+    import * as THREE from './js/vendor/build/three.module.js';
+    import Road from './js/road.js';
+    import Bicycle from './js/bicycle.js';
+
+    var container;
+
+    var camera, scene, renderer;
+    var bicycle;
+
+    var mouseX = 0, mouseY = 0;
+    var windowHalfX = window.innerWidth / 2;
+    var windowHalfY = window.innerHeight / 2;
+
+    init();
+    animate();
+
+    function init() {
+
+      container = document.createElement('div');
+      document.body.appendChild(container);
+
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
+      camera.position.z = 100;
+      camera.position.y = 24;
+
+      // scene
+      scene = new THREE.Scene();
+      setupObjects(scene);
+      setupLighting(scene);
+
+      renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      container.appendChild(renderer.domElement);
+
+      // user interaction
+      document.addEventListener('mousemove', onDocumentMouseMove, false);
+      document.addEventListener('keyup', onKeyUp, false);
+      document.addEventListener('keydown', onKeyDown, false);
+
+      // gradecully handle window resize
+      window.addEventListener('resize', onWindowResize, false);
+
+    }
+
+    function setupLighting(scene) {
+      const pointLight = new THREE.PointLight(0xffffff);
+      pointLight.position.set(50, 100, 100).normalize();
+      scene.add(pointLight);
+
+      const pointLight2 = new THREE.PointLight(0xffeedd);
+      pointLight2.position.set(-100, 250, -25).normalize();
+      scene.add(pointLight2);
+
+      const directionalLight = new THREE.DirectionalLight(0xffeedd);
+      directionalLight.position.set(400, 200, 1000).normalize();
+      scene.add(directionalLight);
+      scene.add(new THREE.AmbientLight(0x101010));
+      scene.background = new THREE.Color( 0x88aadd );
+    }
+
+    function setupObjects(scene) {
+      // ground surface
+      scene.add(new Road(0, 0));
+
+      // model
+      bicycle = new Bicycle();
+      scene.add(bicycle);
+    }
+
+    function render() {
+      camera.position.x += (mouseX - camera.position.x) * 0.05;
+      camera.position.y += (-mouseY - camera.position.y) * 0.05;
+      camera.position.y = Math.max(24, camera.position.y);
+      camera.lookAt(scene.position);
+      renderer.render(scene, camera);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      try {
+        bicycle.animate();
+      } catch (e) {}
+      render();
+    }
+
+    function onKeyUp(event) {
+      switch (event.key) {
+        case "i":
+          bicycle.pedalFwd();
+          break;
+        case "k":
+          bicycle.pedalRev();
+          break;
+        default:
+          return;
+      }
+    }
+
+    function onKeyDown(event) {
+      switch (event.key) {
+        case "j":
+          bicycle.turnLeft();
+          break;
+        case "l":
+          bicycle.turnRight();
+          break;
+        default:
+          return;
+      }
+    }
+
+    function onDocumentMouseMove(event) {
+      mouseX = (event.clientX - windowHalfX) / 2;
+      mouseY = (event.clientY - windowHalfY) / 2;
+    }
+
+    function onWindowResize() {
+      windowHalfX = window.innerWidth / 2;
+      windowHalfY = window.innerHeight / 2;
+
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+  </script>
+
+</body>
+
+</html>

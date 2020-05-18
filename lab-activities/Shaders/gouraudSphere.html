@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Gouraud Per-Vertex Shading - WebGL / GLSL</title>
+  <meta charset="utf-8" />
+  <script id="vertex-shader" type="x-shader/x-vertex">#version 300 es
+    precision mediump float;
+
+    in vec3 in_Position;
+    in vec3 in_Normal;
+
+    out vec3 intensity;
+
+    struct LightData {
+      vec3 position;
+      vec3 intensity;
+    };
+    uniform LightData light;
+
+    // TODO #1 declare uniform variables for surface properties
+    uniform vec3 Ia;
+    uniform vec3 ka, kd, ks;
+    uniform float phongExp;
+
+    uniform mat4 projMatrix;
+    uniform mat4 viewMatrix;
+
+    void main() {
+      vec4 pos = viewMatrix * vec4(in_Position, 1.0);
+      vec4 lightPos = viewMatrix * vec4(light.position, 1.0);
+
+      // Transform vertex normal into eye coordinates
+      vec3 n = (viewMatrix * vec4(in_Normal, 0.0)).xyz;
+      vec3 l = normalize( lightPos.xyz - pos.xyz );/* TODO #4 compute light direction */;
+      vec3 v = normalize( -pos.xyz );/* TODO #7 compute view direction */;
+      vec3 h = normalize( v + l );/* TODO #8 compute the halfway vector */;
+
+      // compute the Blinn-Phong reflection model
+      vec3 ambientTerm = Ia * ka; /* TODO #2 compute the ambient product */;
+      vec3 diffuseTerm = kd * light.intensity * max( 0.0, dot(n, l) )/* TODO #5 compute the diffuse product */;
+      vec3 specularTerm = ks * light.intensity * pow( max( 0.0, dot(n, h) ), phongExp );/* TODO #9 compute the specular product */;
+      intensity = ambientTerm + diffuseTerm + specularTerm;/* TODO #3/6/10 sum for total intensity (start with ambient only, then add more) */;
+
+      gl_Position = projMatrix * pos;
+    }
+  </script>
+  <script id="fragment-shader" type="x-shader/x-fragment">#version 300 es
+    precision mediump float;
+
+    in vec3 intensity;
+
+    out vec4 fragmentColor;
+
+    void main() {
+      fragmentColor = vec4( intensity, 1.0 );
+    }
+  </script>
+  <link href="styles/sphere.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+  <canvas id="gl-canvas" width="720" height="720">
+    Oops ... your browser doesn't support the HTML5 canvas element
+  </canvas>
+  <aside>
+    <h1>Controls</h1>
+    <form onsubmit="return false;">
+      <p>
+        <button id="btnCamDistUp">Increase distance</button>
+        <button id="btnCamDistDn">Decrease distance</button>
+      </p>
+      <p>
+        <button id="btnThetaUp">Increase theta</button>
+        <button id="btnThetaDn">Decrease theta</button>
+      </p>
+      <p>
+        <button id="btnPhiUp">Increase phi</button>
+        <button id="btnPhiDn">Decrease phi</button>
+      </p>
+      <p>
+        <button id="btnMoreDivs">More subdivisions</button>
+        <button id="btnLessDivs">Less subdivisions</button>
+      </p>
+    </form>
+    <h1>About this shader</h1>
+    <p>Gouraud shading computes the reflection model at each vertex and the rasterizer uses barycentric interpolation to determine the color at each fragment in screen space.</p>
+  </aside>
+
+  <script type="text/javascript" src="js/Common/initShaders.js"></script>
+  <script type="text/javascript" src="js/Common/MV.js"></script>
+  <script type="text/javascript" src="js/sphere.js"></script>
+</body></html>

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Computer Graphics Lab - Alpha Compositing</title>
+  <meta charset="utf-8" />
+  <style>
+    html {
+      text-align: center;
+      font-family: sans-serif;
+      font-size: 150%;
+    }
+
+    body {
+      counter-reset: fignum;
+    }
+
+    figure {
+      position: relative;
+      counter-increment: fignum;
+      display: inline-block;
+      width: 640px;
+      margin-bottom: 1em;
+      padding: 0;
+    }
+
+    figure img {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      top: calc(320px - 16px);
+      left: calc(320px - 16px);
+    }
+
+    figcaption {
+      font-style: italic;
+    }
+
+    figcaption:before {
+      content: "View "counter(fignum) ". ";
+    }
+
+    input {
+      font-size: 100%;
+      text-align: right;
+      width: 3em;
+    }
+
+    button {
+      font-size: 100%;
+      padding: 1ex;
+    }
+
+    form {
+      line-height: 150%;
+    }
+
+    canvas {
+      background-color: lightgray;
+      outline: 1px solid gray;
+    }
+
+  </style>
+  <script type="module">
+    import {identity2D, rotate2D, scale2D, translate2D, shearX, shearY} from "./transform.js"
+    import * as Mat from "./matmath.js";
+    import Viewport from "./viewport.js";
+    import Triangle from "./triangle.js";
+    import Axis from "./axis.js";
+  
+    window.onload = () => {
+      // stops form from submitting and refreshing the page
+      document.querySelector("form").addEventListener("submit", (evt) => evt.preventDefault());
+
+      const objects = [
+        new Axis("x"),
+        new Axis("y"),
+        new Triangle([0, 0], [40, 10], [10, -30], "red"),
+        // TODO #1 Add several more Triangle objects of different sizes and colors!
+        new Triangle([30, -20], [20, 10], [15, -40], "blue"),
+        new Triangle([20, 0], [20, -20], [30, -50], "green"),
+        new Triangle([0, -25], [5, 5], [40, -10], "yellow"),
+        new Triangle([0, 10], [25, 25], [15, -60], "purple"),
+        new Triangle([30, -25], [30, 35], [20, -10], "fuchsia")
+      ];
+
+      // TODO #3 Apply various object-space transformations to all your Triangles!
+      objects[2].transform(identity2D());
+      objects[3].transform(rotate2D(30));
+      objects[4].transform(shearX(1.5));
+      objects[5].transform(shearY(2));
+      objects[6].transform(scale2D(2, 3));
+      objects[7].transform(translate2D(3, 1));
+
+      const worldView = new Viewport(document.getElementById("world-coords"));
+      const cameraView = new Viewport(document.getElementById("camera-coords"));
+
+      function drawScene() {
+        const cameraAngle = parseInt(document.getElementById("theta").value);
+        const cameraPos = [ parseInt(document.getElementById("xe").value),
+                           parseInt(document.getElementById("ye").value) ];
+
+        // Re-position the viewer icon in the world view
+        document.getElementById("camera")
+          .style = "top:" + (320 - 16 - cameraPos[0]) + "px; left: " + (320 - 16 + cameraPos[1]) + "px";
+
+        // Render objects to world viewport with only their object-space transformations
+        worldView.render(objects);
+
+        // TODO #4 Build the camera transformation from the form inputs
+
+        const cameraMatrix = Mat.inverse(Mat.mult(Mat.inverse(translate2D(cameraPos[0], cameraPos[1])), rotate2D(cameraAngle * (Math.PI/180))));
+        cameraView.camera(cameraMatrix);
+
+        // Render objects to camera viewport with camera transformation applied
+        cameraView.render(objects, cameraMatrix);
+      }
+
+      document.querySelector("button").addEventListener("click", drawScene);
+
+      drawScene();
+    }
+  </script>
+</head>
+
+<body>
+  <figure>
+    <canvas id="world-coords" width="640" height="640">
+      Your browser does not support HTML5! Upgrade now, you neanderthal!
+    </canvas>
+    <img id="camera" src="eye.svg" alt="camera/viewer" />
+    <figcaption>Scene in world coordinates.</figcaption>
+  </figure>
+  <figure>
+    <canvas id="camera-coords" width="640" height="640">
+      Your browser does not support HTML5! Upgrade now, you neanderthal!
+    </canvas>
+    <img src="eye.svg" alt="camera/viewer" />
+    <figcaption>Scene in camera coordinates.</figcaption>
+  </figure>
+  <form>
+    <label>
+      <strong>e</strong> = (
+      <input id="xe" type="number" min="-1000" max="1000" step="10" value="0" />,
+      <input id="ye" type="number" min="-500" max="500" step="10" value="0" />,
+      )
+      <br />
+      theta = <input id="theta" type="range" min="0" max="360" step="30" value="0" />
+    </label>
+    <br />
+    <button>Update Camera</button>
+  </form>
+</body>
+
+</html>
