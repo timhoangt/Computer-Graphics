@@ -1,5 +1,3 @@
-To view a video walkthrough of this project go here
-
 To run any of the programs go into the folder you want and make sure you have python installed.
 
 In your shell type the following to run on http://localhost:8000/
